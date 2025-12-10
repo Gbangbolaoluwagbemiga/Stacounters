@@ -52,3 +52,4 @@ deployment_fee_rate = ${DEPLOYMENT_FEE_RATE:-10}
 
 [accounts.deployer]
 mnemonic = "${DEPLOYER_MNEMONIC}"
+

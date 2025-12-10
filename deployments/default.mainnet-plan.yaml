@@ -10,8 +10,8 @@ plan:
       transactions:
         - contract-publish:
             contract-name: counter
-            expected-sender: SPMN4R6SFHC2ZQF2WEXPRDD23S7ZSAVSNTAJVSCH
-            cost: 6140
+            expected-sender: SP2QNSNKR3NRDWNTX0Q7R4T8WGBJ8RE8RA516AKZP
+            cost: 542833
             path: contracts/counter.clar
             anchor-block-only: true
             clarity-version: 4

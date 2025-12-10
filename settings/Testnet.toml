@@ -6,3 +6,4 @@ deployment_fee_rate = 10
 [accounts.deployer]
 mnemonic = "<YOUR PRIVATE TESTNET MNEMONIC HERE>"
 
+
