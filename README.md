@@ -112,11 +112,45 @@ clarinet repl
 
 ⚠️ **Warning**: Deploying to mainnet costs real STX tokens.
 
-```bash
-clarinet deploy --mainnet
-```
+#### Option 1: Using Deployment Script (Recommended)
 
-Make sure you have sufficient STX to cover deployment fees.
+1. **Set up your environment variables**:
+   ```bash
+   # The .env file is already created, just fill in your secret key
+   # Edit .env and add your mainnet secret key:
+   DEPLOYER_SECRET_KEY=your_64_character_hex_secret_key_here
+   ```
+
+2. **Run the deployment script**:
+   ```bash
+   ./deploy-mainnet.sh
+   ```
+
+   The script will:
+   - Validate your configuration
+   - Check contract syntax
+   - Generate deployment plan
+   - Deploy to mainnet
+
+#### Option 2: Manual Deployment
+
+1. **Add your secret key to `settings/Mainnet.toml`**:
+   ```toml
+   [accounts.deployer]
+   secret_key = "your_64_character_hex_secret_key_here"
+   ```
+
+2. **Generate and apply deployment**:
+   ```bash
+   clarinet deployments generate --mainnet
+   clarinet deployments apply --mainnet
+   ```
+
+**Important Notes**:
+- Your secret key should be 64 hexadecimal characters (without 0x prefix)
+- Make sure you have sufficient STX in your wallet to cover deployment fees (~0.006 STX)
+- Never commit your `.env` file or secret keys to version control
+- The `.env` file is already in `.gitignore` for your safety
 
 ## Contract Functions
 

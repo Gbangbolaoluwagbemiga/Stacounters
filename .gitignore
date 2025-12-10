@@ -2,6 +2,9 @@
 .cache/
 .vscode/
 
+# Environment variables (NEVER commit secrets!)
+.env
+
 # OS
 .DS_Store
 *.swp
@@ -14,3 +17,5 @@
 # Node
 node_modules/
 
+.env
+.env.example

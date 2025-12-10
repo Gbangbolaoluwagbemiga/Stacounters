@@ -4,5 +4,11 @@ stacks_node_rpc_address = "https://api.hiro.so"
 deployment_fee_rate = 10
 
 [accounts.deployer]
+# Option 1: Use secret key (recommended for mainnet)
+# Uncomment and set your secret key below
+# secret_key = "<YOUR_64_CHAR_HEX_SECRET_KEY>"
+
+# Option 2: Use mnemonic (alternative)
+# Uncomment and set your mnemonic below
 mnemonic = "<YOUR PRIVATE MAINNET MNEMONIC HERE>"
 
