@@ -1,7 +1,15 @@
 [project]
 name = "counter-app"
+description = "A simple counter smart contract for Stacks blockchain"
 authors = ["oluwagbemiga <oluwagbemigagbangbola@gmail.com>"]
+telemetry = true
+cache_dir = "./.cache"
 
 [contracts.counter]
-path = "counter.clar"
+path = "contracts/counter.clar"
+epoch = "latest"
+
+[repl.analysis]
+passes = ["check_checker"]
+check_checker = { trusted_sender = false, trusted_caller = false, callee_filter = false }
 
