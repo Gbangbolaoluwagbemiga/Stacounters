@@ -4,8 +4,4 @@ authors = ["oluwagbemiga <oluwagbemigagbangbola@gmail.com>"]
 
 [contracts.counter]
 path = "counter.clar"
-clarity_version = 2
-
-[repl]
-costs_version = 2
 
