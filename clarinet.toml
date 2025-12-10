@@ -1,0 +1,20 @@
+[project]
+name = "counter-app"
+version = "1.0.0"
+description = "A simple counter app on Stacks blockchain"
+
+[contracts.counter]
+path = "contracts/counter.clar"
+depends_on = []
+
+[networks]
+[networks.devnet]
+name = "devnet"
+deployment_fee_rate = 10
+[networks.testnet]
+name = "testnet"
+deployment_fee_rate = 10
+[networks.mainnet]
+name = "mainnet"
+deployment_fee_rate = 10
+
