@@ -29,10 +29,15 @@ A simple counter smart contract built with Clarity for the Stacks blockchain.
 
 ```
 .
-├── counter.clar          # Main smart contract
-├── Clarinet.toml         # Clarinet configuration
+├── contracts/
+│   └── counter.clar      # Main smart contract
 ├── tests/
 │   └── counter_test.ts   # Contract tests
+├── settings/
+│   ├── Devnet.toml       # Local development network config
+│   ├── Testnet.toml      # Testnet deployment config
+│   └── Mainnet.toml      # Mainnet deployment config
+├── Clarinet.toml         # Clarinet configuration
 └── README.md
 ```
 
@@ -56,6 +61,11 @@ This runs all tests in the `tests/` directory.
 
 ### 3. Interact with the contract in the console
 
+Start the Clarinet console:
+```bash
+clarinet console
+```
+
 Once in the Clarinet console, you can call contract functions:
 
 ```clarity
@@ -70,6 +80,11 @@ Once in the Clarinet console, you can call contract functions:
 
 ;; Reset the counter
 (contract-call? .counter reset)
+```
+
+Or use the Clarinet REPL directly:
+```bash
+clarinet repl
 ```
 
 ## Deployment

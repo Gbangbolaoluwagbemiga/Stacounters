@@ -1,0 +1,16 @@
+# Clarinet
+.cache/
+.vscode/
+
+# OS
+.DS_Store
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+
+# Node
+node_modules/
+
