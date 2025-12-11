@@ -7,7 +7,7 @@ import './App.css'
 // Contract configuration
 // Update this with your deployed contract address
 const CONTRACT_ADDRESS = 'SP2QNSNKR3NRDWNTX0Q7R4T8WGBJ8RE8RA516AKZP' // Your mainnet address
-const CONTRACT_NAME = 'counter'
+const CONTRACT_NAME = 'counter-v2' // Using v2 which already has the increment-by function
 const NETWORK = new StacksMainnet() // Change to StacksTestnet() for testnet
 
 const appConfig = new AppConfig(['store_write', 'publish_data'])
@@ -52,7 +52,6 @@ function App() {
       console.log('Counter API response:', data)
       
       // Parse the Clarity response: (ok value) format
-      // The response can be in different formats depending on the API version
       let value = null
       
       if (data.okay && data.result) {
@@ -62,9 +61,48 @@ function App() {
         if (typeof result === 'number') {
           value = result
         } else if (typeof result === 'string') {
-          // Handle hex format
+          // Handle Clarity hex encoding: 0x07 = int type, 0x08 = uint type
           if (result.startsWith('0x')) {
-            value = parseInt(result, 16)
+            // Clarity integers are encoded with a type prefix byte (0x07 or 0x08)
+            // followed by 16 bytes (32 hex chars) of value in big-endian format
+            const hex = result.substring(2) // Remove '0x'
+            
+            if (hex.length >= 2) {
+              const typeByte = hex.substring(0, 2)
+              
+              if (typeByte === '07' || typeByte === '08') {
+                // Extract the 16-byte (32 hex char) value
+                const valueHex = hex.substring(2)
+                
+                // Parse as big-endian integer
+                // Remove leading zeros but keep the value
+                let trimmedHex = valueHex.replace(/^0+/, '') || '0'
+                
+                // Parse the integer value
+                if (typeByte === '07') {
+                  // Signed integer - parse as BigInt to handle large numbers correctly
+                  const bigIntValue = BigInt('0x' + valueHex)
+                  // Check if it's negative (MSB of first byte of value)
+                  const firstByte = parseInt(valueHex.substring(0, 2) || '00', 16)
+                  if (firstByte >= 0x80 && valueHex.length === 32) {
+                    // Negative number in two's complement
+                    const maxValue = BigInt('0x7fffffffffffffffffffffffffffffff')
+                    value = Number(bigIntValue > maxValue ? bigIntValue - BigInt('0x100000000000000000000000000000000') : bigIntValue)
+                  } else {
+                    // Positive number
+                    value = Number(BigInt('0x' + trimmedHex))
+                  }
+                } else {
+                  // Unsigned integer
+                  value = Number(BigInt('0x' + trimmedHex))
+                }
+              } else {
+                // Fallback: try parsing the whole hex as a number
+                value = parseInt(hex, 16)
+              }
+            } else {
+              value = parseInt(hex, 16)
+            }
           } 
           // Handle uint format like "u0", "u1", etc.
           else if (result.startsWith('u')) {
@@ -91,11 +129,36 @@ function App() {
         if (typeof result === 'number') {
           setCounterValue(result)
         } else if (typeof result === 'string') {
-          const parsed = parseInt(result.replace(/[^0-9-]/g, ''), 10)
-          if (!isNaN(parsed)) {
-            setCounterValue(parsed)
+          // Apply same hex parsing logic
+          if (result.startsWith('0x')) {
+            const hex = result.substring(2)
+            if (hex.length >= 2) {
+              const typeByte = hex.substring(0, 2)
+              if (typeByte === '07' || typeByte === '08') {
+                const valueHex = hex.substring(2)
+                let trimmedHex = valueHex.replace(/^0+/, '') || '0'
+                const parsed = Number(BigInt('0x' + trimmedHex))
+                if (!isNaN(parsed)) {
+                  setCounterValue(parsed)
+                } else {
+                  setError('Failed to parse counter value')
+                }
+              } else {
+                const parsed = parseInt(hex, 16)
+                if (!isNaN(parsed)) {
+                  setCounterValue(parsed)
+                } else {
+                  setError('Failed to parse counter value')
+                }
+              }
+            }
           } else {
-            setError('Failed to parse counter value')
+            const parsed = parseInt(result.replace(/[^0-9-]/g, ''), 10)
+            if (!isNaN(parsed)) {
+              setCounterValue(parsed)
+            } else {
+              setError('Failed to parse counter value')
+            }
           }
         }
       } else {

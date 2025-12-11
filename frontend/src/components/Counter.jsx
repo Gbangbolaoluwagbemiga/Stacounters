@@ -44,6 +44,12 @@ export default function Counter({ contractAddress, contractName, network, userSe
         },
         onCancel: () => {
           console.log('Transaction cancelled')
+          setProcessing(false)
+        },
+        onError: (error) => {
+          console.error('Transaction error:', error)
+          alert('Transaction failed: ' + (error.message || 'Unknown error. Make sure the contract has been redeployed with the new functions.'))
+          setProcessing(false)
         },
       })
     } catch (err) {

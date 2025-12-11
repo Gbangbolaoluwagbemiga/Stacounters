@@ -5,7 +5,7 @@ authors = ["oluwagbemiga <oluwagbemigagbangbola@gmail.com>"]
 telemetry = true
 cache_dir = "./.cache"
 
-[contracts.counter]
+[contracts.counter-v3]
 path = "contracts/counter.clar"
 epoch = "latest"
 
