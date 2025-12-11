@@ -114,7 +114,10 @@ export default function Counter({ contractAddress, contractName, network, userSe
       <div className="counter-display">
         <h2>Current Counter Value</h2>
         {loading ? (
-          <div className="loading">Loading...</div>
+          <div className="loading">
+            <div className="spinner" aria-label="Loading counter value" />
+            <span className="loading-text">Updating on-chain value…</span>
+          </div>
         ) : (
           <div className="counter-value">
             {counterValue !== null && !isNaN(counterValue) ? counterValue : 0}
