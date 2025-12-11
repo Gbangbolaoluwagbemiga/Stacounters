@@ -35,12 +35,60 @@ export default function Counter({ contractAddress, contractName, network, userSe
         contractName,
         functionName,
         functionArgs,
-        onFinish: (data) => {
+        onFinish: async (data) => {
           console.log('Transaction submitted:', data)
+          setProcessing(false)
+          
           // Wait for transaction to be confirmed before refreshing
-          setTimeout(() => {
-            onUpdate()
-          }, 5000)
+          // Stacks blocks are mined approximately every 10 minutes
+          // We'll check multiple times with increasing delays
+          const checkTransaction = async (txId, retries = 0) => {
+            if (retries >= 12) {
+              // After 2 minutes, just refresh anyway
+              console.log('Max retries reached, refreshing counter')
+              onUpdate()
+              return
+            }
+            
+            try {
+              const response = await fetch(`${network.coreApiUrl}/extended/v1/tx/${txId}`)
+              const txData = await response.json()
+              
+              if (txData.tx_status === 'success' || txData.tx_status === 'abort_by_response') {
+                console.log('Transaction confirmed:', txData.tx_status)
+                // Wait a bit more for the state to be updated
+                setTimeout(() => {
+                  onUpdate()
+                }, 2000)
+              } else if (txData.tx_status === 'pending') {
+                // Still pending, check again in 10 seconds
+                console.log(`Transaction pending, checking again in 10s (attempt ${retries + 1}/12)`)
+                setTimeout(() => checkTransaction(txId, retries + 1), 10000)
+              } else {
+                // Transaction failed or other status
+                console.log('Transaction status:', txData.tx_status)
+                setTimeout(() => {
+                  onUpdate()
+                }, 2000)
+              }
+            } catch (err) {
+              console.error('Error checking transaction:', err)
+              // If we can't check, just refresh after a delay
+              setTimeout(() => {
+                onUpdate()
+              }, 15000)
+            }
+          }
+          
+          if (data.txId) {
+            // Start checking transaction status
+            setTimeout(() => checkTransaction(data.txId), 5000)
+          } else {
+            // Fallback: just refresh after delay
+            setTimeout(() => {
+              onUpdate()
+            }, 15000)
+          }
         },
         onCancel: () => {
           console.log('Transaction cancelled')
@@ -122,6 +170,12 @@ export default function Counter({ contractAddress, contractName, network, userSe
       {processing && (
         <div className="processing">
           Processing transaction... Please confirm in your wallet.
+        </div>
+      )}
+
+      {!processing && counterValue === 0 && (
+        <div className="info" style={{ marginTop: '10px' }}>
+          💡 Tip: After incrementing, wait a few seconds and click "Refresh Counter" to see the updated value
         </div>
       )}
 
