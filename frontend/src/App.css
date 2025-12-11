@@ -45,6 +45,23 @@ main {
   border-radius: 8px;
   margin-bottom: 20px;
   border: 1px solid #fcc;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.btn-retry {
+  padding: 8px 16px;
+  background: #c33;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.btn-retry:hover {
+  background: #a22;
 }
 
 .btn {

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { AppConfig, UserSession, showConnect } from '@stacks/connect'
 import { StacksMainnet, StacksTestnet } from '@stacks/network'
-import { callReadOnlyFunction, contractPrincipalCV, standardPrincipalCV, uintCV, contractCall } from '@stacks/transactions'
 import Counter from './components/Counter'
 import './App.css'
 
@@ -30,21 +29,82 @@ function App() {
   const fetchCounter = async () => {
     try {
       setLoading(true)
-      const result = await callReadOnlyFunction({
-        network: NETWORK,
-        contractAddress: CONTRACT_ADDRESS,
-        contractName: CONTRACT_NAME,
-        functionName: 'get-counter',
-        functionArgs: [],
-        senderAddress: CONTRACT_ADDRESS,
+      setError(null)
+      
+      // Use the Stacks API to read the contract state
+      const apiUrl = `${NETWORK.coreApiUrl}/v2/contracts/call-read/${CONTRACT_ADDRESS}/${CONTRACT_NAME}/get-counter`
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          sender: CONTRACT_ADDRESS,
+          arguments: [],
+        }),
       })
       
-      if (result && result.value !== undefined) {
-        setCounterValue(Number(result.value))
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`)
+      }
+      
+      const data = await response.json()
+      console.log('Counter API response:', data)
+      
+      // Parse the Clarity response: (ok value) format
+      // The response can be in different formats depending on the API version
+      let value = null
+      
+      if (data.okay && data.result) {
+        const result = data.result
+        
+        // Handle different result formats
+        if (typeof result === 'number') {
+          value = result
+        } else if (typeof result === 'string') {
+          // Handle hex format
+          if (result.startsWith('0x')) {
+            value = parseInt(result, 16)
+          } 
+          // Handle uint format like "u0", "u1", etc.
+          else if (result.startsWith('u')) {
+            value = parseInt(result.substring(1), 10)
+          }
+          // Handle plain number string
+          else {
+            value = parseInt(result, 10)
+          }
+        } else if (result && typeof result === 'object' && 'value' in result) {
+          // Handle ClarityValue object format
+          value = parseInt(result.value, 10)
+        }
+        
+        if (value !== null && !isNaN(value)) {
+          setCounterValue(value)
+        } else {
+          console.error('Could not parse result:', result, 'Type:', typeof result)
+          setError('Failed to parse counter value')
+        }
+      } else if (data.result) {
+        // Try to parse result directly if okay is not present
+        const result = data.result
+        if (typeof result === 'number') {
+          setCounterValue(result)
+        } else if (typeof result === 'string') {
+          const parsed = parseInt(result.replace(/[^0-9-]/g, ''), 10)
+          if (!isNaN(parsed)) {
+            setCounterValue(parsed)
+          } else {
+            setError('Failed to parse counter value')
+          }
+        }
+      } else {
+        console.error('Unexpected API response:', data)
+        setError('Failed to parse counter value')
       }
     } catch (err) {
       console.error('Error fetching counter:', err)
-      setError('Failed to fetch counter value')
+      setError('Failed to fetch counter value: ' + err.message)
     } finally {
       setLoading(false)
     }
@@ -90,7 +150,12 @@ function App() {
         </header>
 
         <main>
-          {error && <div className="error">{error}</div>}
+          {error && (
+            <div className="error">
+              {error}
+              <button onClick={fetchCounter} className="btn-retry">Retry</button>
+            </div>
+          )}
           
           <Counter
             contractAddress={CONTRACT_ADDRESS}

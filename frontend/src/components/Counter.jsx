@@ -23,9 +23,10 @@ export default function Counter({ contractAddress, contractName, network, userSe
         functionArgs,
         onFinish: (data) => {
           console.log('Transaction submitted:', data)
+          // Wait for transaction to be confirmed before refreshing
           setTimeout(() => {
             onUpdate()
-          }, 2000)
+          }, 5000)
         },
         onCancel: () => {
           console.log('Transaction cancelled')
@@ -46,7 +47,9 @@ export default function Counter({ contractAddress, contractName, network, userSe
         {loading ? (
           <div className="loading">Loading...</div>
         ) : (
-          <div className="counter-value">{counterValue !== null ? counterValue : '--'}</div>
+          <div className="counter-value">
+            {counterValue !== null && !isNaN(counterValue) ? counterValue : '--'}
+          </div>
         )}
       </div>
 
@@ -85,6 +88,15 @@ export default function Counter({ contractAddress, contractName, network, userSe
           Connect your wallet to interact with the counter
         </div>
       )}
+
+      <button
+        onClick={onUpdate}
+        disabled={loading}
+        className="btn-refresh"
+        style={{ marginTop: '20px', padding: '10px 20px', background: '#f0f0f0', border: '1px solid #ddd', borderRadius: '8px', cursor: 'pointer' }}
+      >
+        🔄 Refresh Counter
+      </button>
     </div>
   )
 }
