@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { openContractCall } from '@stacks/connect'
-import { uintCV } from '@stacks/transactions'
+import { intCV } from '@stacks/transactions'
 import './Counter.css'
 
 export default function Counter({ contractAddress, contractName, network, userSession, counterValue, loading, onUpdate }) {
@@ -26,7 +26,7 @@ export default function Counter({ contractAddress, contractName, network, userSe
           return
         }
         functionName = 'increment-by'
-        functionArgs.push(uintCV(numAmount))
+        functionArgs.push(intCV(numAmount))
       }
       
       await openContractCall({
