@@ -51,7 +51,8 @@ export default function Counter({ contractAddress, contractName, network, userSe
             }
             
             try {
-              const response = await fetch(`${network.coreApiUrl}/extended/v1/tx/${txId}`)
+              const apiUrl = network.coreApiUrl || 'https://api.hiro.so'
+              const response = await fetch(`${apiUrl}/extended/v1/tx/${txId}`)
               const txData = await response.json()
               
               if (txData.tx_status === 'success' || txData.tx_status === 'abort_by_response') {
