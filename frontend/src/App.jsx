@@ -15,7 +15,7 @@ const userSession = new UserSession({ appConfig })
 
 function App() {
   const [userData, setUserData] = useState(null)
-  const [counterValue, setCounterValue] = useState(null)
+  const [counterValue, setCounterValue] = useState(0)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 

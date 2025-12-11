@@ -11,6 +11,14 @@
   )
 )
 
+;; Increment the counter by a custom amount
+(define-public (increment-by (amount int))
+  (begin
+    (var-set counter (+ (var-get counter) amount))
+    (ok (var-get counter))
+  )
+)
+
 ;; Decrement the counter by 1
 (define-public (decrement)
   (begin

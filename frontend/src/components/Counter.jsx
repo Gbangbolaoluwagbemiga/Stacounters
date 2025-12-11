@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { openContractCall } from '@stacks/connect'
+import { uintCV } from '@stacks/transactions'
 import './Counter.css'
 
 export default function Counter({ contractAddress, contractName, network, userSession, counterValue, loading, onUpdate }) {
   const [processing, setProcessing] = useState(false)
+  const [incrementAmount, setIncrementAmount] = useState('1')
 
-  const handleContractCall = async (functionName) => {
+  const handleContractCall = async (functionName, amount = null) => {
     if (!userSession.isUserSignedIn()) {
       alert('Please connect your wallet first')
       return
@@ -14,6 +16,18 @@ export default function Counter({ contractAddress, contractName, network, userSe
     try {
       setProcessing(true)
       const functionArgs = []
+      
+      // If amount is provided, use increment-by function
+      if (amount !== null) {
+        const numAmount = parseInt(amount, 10)
+        if (isNaN(numAmount) || numAmount <= 0) {
+          alert('Please enter a valid positive number')
+          setProcessing(false)
+          return
+        }
+        functionName = 'increment-by'
+        functionArgs.push(uintCV(numAmount))
+      }
       
       await openContractCall({
         network,
@@ -48,9 +62,31 @@ export default function Counter({ contractAddress, contractName, network, userSe
           <div className="loading">Loading...</div>
         ) : (
           <div className="counter-value">
-            {counterValue !== null && !isNaN(counterValue) ? counterValue : '--'}
+            {counterValue !== null && !isNaN(counterValue) ? counterValue : 0}
           </div>
         )}
+      </div>
+
+      <div className="increment-custom">
+        <h3>Increment by Custom Amount</h3>
+        <div className="increment-input-group">
+          <input
+            type="number"
+            min="1"
+            value={incrementAmount}
+            onChange={(e) => setIncrementAmount(e.target.value)}
+            placeholder="Enter amount"
+            disabled={processing || !userSession.isUserSignedIn()}
+            className="increment-input"
+          />
+          <button
+            onClick={() => handleContractCall('increment-by', incrementAmount)}
+            disabled={processing || !userSession.isUserSignedIn()}
+            className="btn-action btn-increment-custom"
+          >
+            ➕ Add {incrementAmount || '0'}
+          </button>
+        </div>
       </div>
 
       <div className="counter-actions">
@@ -59,21 +95,21 @@ export default function Counter({ contractAddress, contractName, network, userSe
           disabled={processing || !userSession.isUserSignedIn()}
           className="btn-action btn-increment"
         >
-          ➕ Increment
+          ➕ Increment (+1)
         </button>
         <button
           onClick={() => handleContractCall('decrement')}
           disabled={processing || !userSession.isUserSignedIn()}
           className="btn-action btn-decrement"
         >
-          ➖ Decrement
+          ➖ Decrement (-1)
         </button>
         <button
           onClick={() => handleContractCall('reset')}
           disabled={processing || !userSession.isUserSignedIn()}
           className="btn-action btn-reset"
         >
-          🔄 Reset
+          🔄 Reset to 0
         </button>
       </div>
 
