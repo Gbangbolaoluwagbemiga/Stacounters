@@ -5,6 +5,7 @@ import './Counter.css'
 
 export default function Counter({ contractAddress, contractName, network, userSession, counterValue, loading, onUpdate }) {
   const [processing, setProcessing] = useState(false)
+  const [waitingForConfirmation, setWaitingForConfirmation] = useState(false)
   const [incrementAmount, setIncrementAmount] = useState('1')
 
   const handleContractCall = async (functionName, amount = null) => {
@@ -38,6 +39,7 @@ export default function Counter({ contractAddress, contractName, network, userSe
         onFinish: async (data) => {
           console.log('Transaction submitted:', data)
           setProcessing(false)
+          setWaitingForConfirmation(true) // Show spinner while waiting for confirmation
           
           // Wait for transaction to be confirmed before refreshing
           // Stacks blocks are mined approximately every 10 minutes
@@ -46,6 +48,7 @@ export default function Counter({ contractAddress, contractName, network, userSe
             if (retries >= 12) {
               // After 2 minutes, just refresh anyway
               console.log('Max retries reached, refreshing counter')
+              setWaitingForConfirmation(false)
               onUpdate()
               return
             }
@@ -59,6 +62,7 @@ export default function Counter({ contractAddress, contractName, network, userSe
                 console.log('Transaction confirmed:', txData.tx_status)
                 // Wait a bit more for the state to be updated
                 setTimeout(() => {
+                  setWaitingForConfirmation(false)
                   onUpdate()
                 }, 2000)
               } else if (txData.tx_status === 'pending') {
@@ -68,6 +72,7 @@ export default function Counter({ contractAddress, contractName, network, userSe
               } else {
                 // Transaction failed or other status
                 console.log('Transaction status:', txData.tx_status)
+                setWaitingForConfirmation(false)
                 setTimeout(() => {
                   onUpdate()
                 }, 2000)
@@ -75,6 +80,7 @@ export default function Counter({ contractAddress, contractName, network, userSe
             } catch (err) {
               console.error('Error checking transaction:', err)
               // If we can't check, just refresh after a delay
+              setWaitingForConfirmation(false)
               setTimeout(() => {
                 onUpdate()
               }, 15000)
@@ -86,6 +92,7 @@ export default function Counter({ contractAddress, contractName, network, userSe
             setTimeout(() => checkTransaction(data.txId), 5000)
           } else {
             // Fallback: just refresh after delay
+            setWaitingForConfirmation(false)
             setTimeout(() => {
               onUpdate()
             }, 15000)
@@ -94,18 +101,20 @@ export default function Counter({ contractAddress, contractName, network, userSe
         onCancel: () => {
           console.log('Transaction cancelled')
           setProcessing(false)
+          setWaitingForConfirmation(false)
         },
         onError: (error) => {
           console.error('Transaction error:', error)
           alert('Transaction failed: ' + (error.message || 'Unknown error. Make sure the contract has been redeployed with the new functions.'))
           setProcessing(false)
+          setWaitingForConfirmation(false)
         },
       })
     } catch (err) {
       console.error('Error calling contract:', err)
       alert('Failed to execute transaction: ' + err.message)
-    } finally {
       setProcessing(false)
+      setWaitingForConfirmation(false)
     }
   }
 
@@ -113,10 +122,12 @@ export default function Counter({ contractAddress, contractName, network, userSe
     <div className="counter">
       <div className="counter-display">
         <h2>Current Counter Value</h2>
-        {loading ? (
+        {(loading || waitingForConfirmation) ? (
           <div className="loading">
             <div className="spinner" aria-label="Loading counter value" />
-            <span className="loading-text">Updating on-chain value…</span>
+            <span className="loading-text">
+              {waitingForConfirmation ? 'Waiting for blockchain confirmation...' : 'Updating on-chain value…'}
+            </span>
           </div>
         ) : (
           <div className="counter-value">
@@ -134,12 +145,12 @@ export default function Counter({ contractAddress, contractName, network, userSe
             value={incrementAmount}
             onChange={(e) => setIncrementAmount(e.target.value)}
             placeholder="Enter amount"
-            disabled={processing || !userSession.isUserSignedIn()}
+            disabled={processing || waitingForConfirmation || !userSession.isUserSignedIn()}
             className="increment-input"
           />
           <button
             onClick={() => handleContractCall('increment-by', incrementAmount)}
-            disabled={processing || !userSession.isUserSignedIn()}
+            disabled={processing || waitingForConfirmation || !userSession.isUserSignedIn()}
             className="btn-action btn-increment-custom"
           >
             ➕ Add {incrementAmount || '0'}
@@ -150,21 +161,21 @@ export default function Counter({ contractAddress, contractName, network, userSe
       <div className="counter-actions">
         <button
           onClick={() => handleContractCall('increment')}
-          disabled={processing || !userSession.isUserSignedIn()}
+          disabled={processing || waitingForConfirmation || !userSession.isUserSignedIn()}
           className="btn-action btn-increment"
         >
           ➕ Increment (+1)
         </button>
         <button
           onClick={() => handleContractCall('decrement')}
-          disabled={processing || !userSession.isUserSignedIn()}
+          disabled={processing || waitingForConfirmation || !userSession.isUserSignedIn()}
           className="btn-action btn-decrement"
         >
           ➖ Decrement (-1)
         </button>
         <button
           onClick={() => handleContractCall('reset')}
-          disabled={processing || !userSession.isUserSignedIn()}
+          disabled={processing || waitingForConfirmation || !userSession.isUserSignedIn()}
           className="btn-action btn-reset"
         >
           🔄 Reset to 0
@@ -174,6 +185,13 @@ export default function Counter({ contractAddress, contractName, network, userSe
       {processing && (
         <div className="processing">
           Processing transaction... Please confirm in your wallet.
+        </div>
+      )}
+
+      {waitingForConfirmation && (
+        <div className="processing">
+          <div className="spinner-small"></div>
+          Transaction submitted! Waiting for blockchain confirmation...
         </div>
       )}
 
@@ -191,7 +209,7 @@ export default function Counter({ contractAddress, contractName, network, userSe
 
       <button
         onClick={onUpdate}
-        disabled={loading}
+        disabled={loading || waitingForConfirmation}
         className="btn-refresh"
         style={{ marginTop: '20px', padding: '10px 20px', background: '#f0f0f0', border: '1px solid #ddd', borderRadius: '8px', cursor: 'pointer' }}
       >
