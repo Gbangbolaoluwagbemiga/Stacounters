@@ -227,6 +227,7 @@ function App() {
       <div className="container">
         <header>
           <h1>🔢 Stacks Counter App</h1>
+          <div className="tagline">A smooth counter experience on Stacks</div>
           {userData ? (
             <div className="user-info">
               <p>Connected: {userData.profile.stxAddress.mainnet}</p>
