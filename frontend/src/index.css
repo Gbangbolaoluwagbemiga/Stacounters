@@ -17,9 +17,12 @@ body {
   justify-content: center;
 }
 
+.dark body {
+  background: linear-gradient(135deg, #0f172a 0%, #111827 100%);
+}
+
 #root {
   width: 100%;
   max-width: 600px;
   padding: 20px;
 }
-

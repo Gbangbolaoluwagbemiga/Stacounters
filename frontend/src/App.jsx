@@ -18,13 +18,38 @@ function App() {
   const [counterValue, setCounterValue] = useState(0)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [theme, setTheme] = useState('light')
 
   useEffect(() => {
+    const savedTheme = typeof window !== 'undefined' ? localStorage.getItem('theme') : null
+    if (savedTheme === 'dark' || savedTheme === 'light') {
+      setTheme(savedTheme)
+    }
+    if (typeof document !== 'undefined') {
+      if ((savedTheme || theme) === 'dark') {
+        document.documentElement.classList.add('dark')
+      } else {
+        document.documentElement.classList.remove('dark')
+      }
+    }
     if (userSession.isUserSignedIn()) {
       setUserData(userSession.loadUserData())
     }
     fetchCounter()
   }, [])
+
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark')
+      } else {
+        document.documentElement.classList.remove('dark')
+      }
+    }
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('theme', theme)
+    }
+  }, [theme])
 
   const fetchCounter = async () => {
     try {
@@ -193,6 +218,10 @@ function App() {
     setUserData(null)
   }
 
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'))
+  }
+
   return (
     <div className="app">
       <div className="container">
@@ -204,11 +233,21 @@ function App() {
               <button onClick={handleDisconnect} className="btn btn-secondary">
                 Disconnect
               </button>
+              <button onClick={toggleTheme} className="btn btn-primary">
+                {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+              </button>
             </div>
           ) : (
             <button onClick={handleConnect} className="btn btn-primary">
               Connect Wallet
             </button>
+          )}
+          {!userData && (
+            <div style={{ marginTop: '10px' }}>
+              <button onClick={toggleTheme} className="btn btn-primary">
+                {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+              </button>
+            </div>
           )}
         </header>
 
