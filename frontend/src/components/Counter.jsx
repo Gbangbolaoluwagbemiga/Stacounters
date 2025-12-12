@@ -7,6 +7,7 @@ export default function Counter({ contractAddress, contractName, network, userSe
   const [processing, setProcessing] = useState(false)
   const [waitingForConfirmation, setWaitingForConfirmation] = useState(false)
   const [incrementAmount, setIncrementAmount] = useState('1')
+  const [decrementAmount, setDecrementAmount] = useState('1')
 
   const handleContractCall = async (functionName, amount = null) => {
     if (!userSession.isUserSignedIn()) {
@@ -18,7 +19,7 @@ export default function Counter({ contractAddress, contractName, network, userSe
       setProcessing(true)
       const functionArgs = []
       
-      // If amount is provided, use increment-by function
+      // If amount is provided, use the corresponding *-by function
       if (amount !== null) {
         const numAmount = parseInt(amount, 10)
         if (isNaN(numAmount) || numAmount <= 0) {
@@ -26,7 +27,6 @@ export default function Counter({ contractAddress, contractName, network, userSe
           setProcessing(false)
           return
         }
-        functionName = 'increment-by'
         functionArgs.push(intCV(numAmount))
       }
       
@@ -158,6 +158,28 @@ export default function Counter({ contractAddress, contractName, network, userSe
         </div>
       </div>
 
+      <div className="increment-custom" style={{ marginTop: '20px' }}>
+        <h3>Decrement by Custom Amount</h3>
+        <div className="increment-input-group">
+          <input
+            type="number"
+            min="1"
+            value={decrementAmount}
+            onChange={(e) => setDecrementAmount(e.target.value)}
+            placeholder="Enter amount"
+            disabled={processing || waitingForConfirmation || !userSession.isUserSignedIn()}
+            className="increment-input"
+          />
+          <button
+            onClick={() => handleContractCall('decrement-by', decrementAmount)}
+            disabled={processing || waitingForConfirmation || !userSession.isUserSignedIn()}
+            className="btn-action btn-decrement-custom"
+          >
+            ➖ Subtract {decrementAmount || '0'}
+          </button>
+        </div>
+      </div>
+
       <div className="counter-actions">
         <button
           onClick={() => handleContractCall('increment')}
@@ -218,4 +240,3 @@ export default function Counter({ contractAddress, contractName, network, userSe
     </div>
   )
 }
-
