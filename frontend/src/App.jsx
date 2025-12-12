@@ -18,38 +18,32 @@ function App() {
   const [counterValue, setCounterValue] = useState(0)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-  const [theme, setTheme] = useState('light')
 
   useEffect(() => {
-    const savedTheme = typeof window !== 'undefined' ? localStorage.getItem('theme') : null
-    if (savedTheme === 'dark' || savedTheme === 'light') {
-      setTheme(savedTheme)
-    }
-    if (typeof document !== 'undefined') {
-      if ((savedTheme || theme) === 'dark') {
-        document.documentElement.classList.add('dark')
-      } else {
-        document.documentElement.classList.remove('dark')
+    const mql = typeof window !== 'undefined' ? window.matchMedia('(prefers-color-scheme: dark)') : null
+    const apply = () => {
+      if (typeof document !== 'undefined') {
+        if (mql && mql.matches) {
+          document.documentElement.classList.add('dark')
+        } else {
+          document.documentElement.classList.remove('dark')
+        }
       }
+    }
+    apply()
+    if (mql && mql.addEventListener) {
+      mql.addEventListener('change', apply)
     }
     if (userSession.isUserSignedIn()) {
       setUserData(userSession.loadUserData())
     }
     fetchCounter()
-  }, [])
-
-  useEffect(() => {
-    if (typeof document !== 'undefined') {
-      if (theme === 'dark') {
-        document.documentElement.classList.add('dark')
-      } else {
-        document.documentElement.classList.remove('dark')
+    return () => {
+      if (mql && mql.removeEventListener) {
+        mql.removeEventListener('change', apply)
       }
     }
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('theme', theme)
-    }
-  }, [theme])
+  }, [])
 
   const fetchCounter = async () => {
     try {
@@ -218,9 +212,7 @@ function App() {
     setUserData(null)
   }
 
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'))
-  }
+  
 
   return (
     <div className="app">
@@ -234,22 +226,14 @@ function App() {
               <button onClick={handleDisconnect} className="btn btn-secondary">
                 Disconnect
               </button>
-              <button onClick={toggleTheme} className="btn btn-primary">
-                {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
-              </button>
+              
             </div>
           ) : (
             <button onClick={handleConnect} className="btn btn-primary">
               Connect Wallet
             </button>
           )}
-          {!userData && (
-            <div style={{ marginTop: '10px' }}>
-              <button onClick={toggleTheme} className="btn btn-primary">
-                {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
-              </button>
-            </div>
-          )}
+          
         </header>
 
         <main>
