@@ -7,7 +7,7 @@ import './App.css'
 // Contract configuration
 // Update this with your deployed contract address
 const CONTRACT_ADDRESS = 'SP2QNSNKR3NRDWNTX0Q7R4T8WGBJ8RE8RA516AKZP' // Your mainnet address
-const CONTRACT_NAME = 'counter-v3'
+const CONTRACT_NAME = 'counter-v4'
 const NETWORK = new StacksMainnet() // Change to StacksTestnet() for testnet
 
 const appConfig = new AppConfig(['store_write', 'publish_data'])

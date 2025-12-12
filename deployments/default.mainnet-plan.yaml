@@ -11,7 +11,7 @@ plan:
         - contract-publish:
             contract-name: counter-v3
             expected-sender: SP2QNSNKR3NRDWNTX0Q7R4T8WGBJ8RE8RA516AKZP
-            cost: 730533
+            cost: 9750
             path: contracts/counter.clar
             anchor-block-only: true
             clarity-version: 4

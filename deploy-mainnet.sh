@@ -17,15 +17,15 @@ if [ ! -f .env ]; then
     exit 1
 fi
 
-# Load environment variables
-source .env
-
-# Check if mnemonic is set
-if [ -z "$DEPLOYER_MNEMONIC" ]; then
+MNEMONIC_LINE=$(grep -E '^DEPLOYER_MNEMONIC=' .env || true)
+if [ -z "$MNEMONIC_LINE" ]; then
     echo "❌ Error: DEPLOYER_MNEMONIC is not set in .env file"
     echo "Please add your Stacks mainnet 24-word mnemonic to .env"
     exit 1
 fi
+
+# Extract mnemonic keeping spaces, strip leading var name and any surrounding quotes
+DEPLOYER_MNEMONIC=$(echo "$MNEMONIC_LINE" | sed 's/^DEPLOYER_MNEMONIC=//' | sed 's/^\"\?//; s/\"\?$//')
 
 # Count words in mnemonic
 WORD_COUNT=$(echo "$DEPLOYER_MNEMONIC" | wc -w | tr -d ' ')
@@ -52,5 +52,19 @@ deployment_fee_rate = ${DEPLOYMENT_FEE_RATE:-10}
 
 [accounts.deployer]
 mnemonic = "${DEPLOYER_MNEMONIC}"
+EOF
 
+echo "✅ Mainnet settings updated"
 
+echo "🔍 Checking contracts syntax..."
+clarinet check
+
+echo "🛠️ Generating mainnet deployment plan (low cost)..."
+clarinet deployments generate --mainnet --low-cost << ANSWERS
+y
+ANSWERS
+
+echo "🚀 Applying mainnet deployment plan..."
+clarinet deployments apply --mainnet
+
+echo "✅ Deployment complete"

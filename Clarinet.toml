@@ -5,11 +5,10 @@ authors = ["oluwagbemiga <oluwagbemigagbangbola@gmail.com>"]
 telemetry = true
 cache_dir = "./.cache"
 
-[contracts.counter-v3]
+[contracts.counter-v4]
 path = "contracts/counter.clar"
 epoch = "latest"
 
 [repl.analysis]
 passes = ["check_checker"]
 check_checker = { trusted_sender = false, trusted_caller = false, callee_filter = false }
-
