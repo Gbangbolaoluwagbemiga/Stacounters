@@ -38,6 +38,34 @@ main {
   padding: 40px;
 }
 
+.dark .container {
+  background: #0b0f19;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  color: #e5e7eb;
+}
+
+.dark header {
+  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+}
+
+.dark .error {
+  background: #2b1d1d;
+  color: #fca5a5;
+  border-color: #7f1d1d;
+}
+
+.dark .btn-primary {
+  background: #111827;
+  color: #e5e7eb;
+  border: 1px solid #374151;
+}
+
+.dark .btn-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: #e5e7eb;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
 .error {
   background: #fee;
   color: #c33;
@@ -93,4 +121,3 @@ main {
 .btn-secondary:hover {
   background: rgba(255, 255, 255, 0.3);
 }
-
