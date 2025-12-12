@@ -197,18 +197,38 @@ function App() {
   }
 
   const handleConnect = () => {
-    showConnect({
-      appDetails: {
-        name: 'Stacks Counter App',
-        icon: window.location.origin + '/vite.svg',
-      },
-      redirectTo: '/',
-      onFinish: () => {
-        setUserData(userSession.loadUserData())
-        fetchCounter()
-      },
-      userSession,
-    })
+    try {
+      try { userSession.signUserOut() } catch {}
+      try {
+        if (typeof window !== 'undefined' && window.localStorage) {
+          const keys = []
+          for (let i = 0; i < localStorage.length; i++) {
+            const k = localStorage.key(i)
+            if (k && (/blockstack/i.test(k) || /stacks/i.test(k) || /stx/i.test(k))) {
+              keys.push(k)
+            }
+          }
+          keys.forEach(k => localStorage.removeItem(k))
+        }
+      } catch {}
+      showConnect({
+        appDetails: {
+          name: 'Stacks Counter App',
+          icon: window.location.origin + '/vite.svg',
+        },
+        redirectTo: '/',
+        onFinish: () => {
+          try {
+            setUserData(userSession.loadUserData())
+          } catch {}
+          fetchCounter()
+        },
+        userSession,
+      })
+    } catch (e) {
+      try { userSession.signUserOut() } catch {}
+      alert('Wallet session error. Please try connecting again.')
+    }
   }
 
   const handleDisconnect = () => {
