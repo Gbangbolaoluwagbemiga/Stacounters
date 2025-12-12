@@ -34,8 +34,12 @@ function App() {
     if (mql && mql.addEventListener) {
       mql.addEventListener('change', apply)
     }
-    if (userSession.isUserSignedIn()) {
-      setUserData(userSession.loadUserData())
+    try {
+      if (userSession.isUserSignedIn()) {
+        setUserData(userSession.loadUserData())
+      }
+    } catch (e) {
+      console.warn('Error reading wallet session; treating as signed out:', e)
     }
     fetchCounter()
     return () => {

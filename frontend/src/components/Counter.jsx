@@ -9,8 +9,36 @@ export default function Counter({ contractAddress, contractName, network, userSe
   const [incrementAmount, setIncrementAmount] = useState('1')
   const [decrementAmount, setDecrementAmount] = useState('1')
 
+  const isSignedInSafe = () => {
+    try {
+      return userSession.isUserSignedIn()
+    } catch (e) {
+      console.warn('Wallet session error, treating as signed out:', e)
+      return false
+    }
+  }
+
+  const resetSession = () => {
+    try {
+      userSession.signUserOut()
+    } catch {}
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const keys = []
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i)
+          if (k && (/blockstack/i.test(k) || /stacks/i.test(k) || /stx/i.test(k))) {
+            keys.push(k)
+          }
+        }
+        keys.forEach(k => localStorage.removeItem(k))
+      }
+    } catch {}
+    alert('Session reset. Please reconnect your wallet.')
+  }
+
   const handleContractCall = async (functionName, amount = null) => {
-    if (!userSession.isUserSignedIn()) {
+    if (!isSignedInSafe()) {
       alert('Please connect your wallet first')
       return
     }
@@ -145,12 +173,12 @@ export default function Counter({ contractAddress, contractName, network, userSe
             value={incrementAmount}
             onChange={(e) => setIncrementAmount(e.target.value)}
             placeholder="Enter amount"
-            disabled={processing || waitingForConfirmation || !userSession.isUserSignedIn()}
+            disabled={processing || waitingForConfirmation || !isSignedInSafe()}
             className="increment-input"
           />
           <button
             onClick={() => handleContractCall('increment-by', incrementAmount)}
-            disabled={processing || waitingForConfirmation || !userSession.isUserSignedIn()}
+            disabled={processing || waitingForConfirmation || !isSignedInSafe()}
             className="btn-action btn-increment-custom"
           >
             ➕ Add {incrementAmount || '0'}
@@ -167,12 +195,12 @@ export default function Counter({ contractAddress, contractName, network, userSe
             value={decrementAmount}
             onChange={(e) => setDecrementAmount(e.target.value)}
             placeholder="Enter amount"
-            disabled={processing || waitingForConfirmation || !userSession.isUserSignedIn()}
+            disabled={processing || waitingForConfirmation || !isSignedInSafe()}
             className="increment-input"
           />
           <button
             onClick={() => handleContractCall('decrement-by', decrementAmount)}
-            disabled={processing || waitingForConfirmation || !userSession.isUserSignedIn()}
+            disabled={processing || waitingForConfirmation || !isSignedInSafe()}
             className="btn-action btn-decrement-custom"
           >
             ➖ Subtract {decrementAmount || '0'}
@@ -183,21 +211,21 @@ export default function Counter({ contractAddress, contractName, network, userSe
       <div className="counter-actions">
         <button
           onClick={() => handleContractCall('increment')}
-          disabled={processing || waitingForConfirmation || !userSession.isUserSignedIn()}
+          disabled={processing || waitingForConfirmation || !isSignedInSafe()}
           className="btn-action btn-increment"
         >
           ➕ Increment (+1)
         </button>
         <button
           onClick={() => handleContractCall('decrement')}
-          disabled={processing || waitingForConfirmation || !userSession.isUserSignedIn()}
+          disabled={processing || waitingForConfirmation || !isSignedInSafe()}
           className="btn-action btn-decrement"
         >
           ➖ Decrement (-1)
         </button>
         <button
           onClick={() => handleContractCall('reset')}
-          disabled={processing || waitingForConfirmation || !userSession.isUserSignedIn()}
+          disabled={processing || waitingForConfirmation || !isSignedInSafe()}
           className="btn-action btn-reset"
         >
           🔄 Reset to 0
@@ -223,9 +251,12 @@ export default function Counter({ contractAddress, contractName, network, userSe
         </div>
       )}
 
-      {!userSession.isUserSignedIn() && (
+      {!isSignedInSafe() && (
         <div className="info">
           Connect your wallet to interact with the counter
+          <div style={{ marginTop: '10px' }}>
+            <button onClick={resetSession} className="btn-action btn-reset">Reset Session</button>
+          </div>
         </div>
       )}
 
