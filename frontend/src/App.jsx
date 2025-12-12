@@ -18,7 +18,6 @@ function App() {
   const [counterValue, setCounterValue] = useState(0)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-  const [connectError, setConnectError] = useState(null)
 
   useEffect(() => {
     const mql = typeof window !== 'undefined' ? window.matchMedia('(prefers-color-scheme: dark)') : null
@@ -43,26 +42,10 @@ function App() {
       console.warn('Error reading wallet session; treating as signed out:', e)
     }
     fetchCounter()
-    const onUnhandled = (evt) => {
-      const msg = (evt && (evt.reason?.message || evt.message)) || ''
-      if (/NoSessionDataError|JSON data version undefined|StacksProvider|Cannot redefine property: ethereum/i.test(msg)) {
-        setConnectError('Wallet provider conflict or stale session detected. Please disable other wallet extensions and reset session, then try again.')
-      }
-    }
-    const onErrorEvt = (evt) => {
-      const msg = (evt && (evt.error?.message || evt.message)) || ''
-      if (/NoSessionDataError|JSON data version undefined|StacksProvider|Cannot redefine property: ethereum/i.test(msg)) {
-        setConnectError('Wallet provider conflict or stale session detected. Please disable other wallet extensions and reset session, then try again.')
-      }
-    }
-    window.addEventListener('unhandledrejection', onUnhandled)
-    window.addEventListener('error', onErrorEvt)
     return () => {
       if (mql && mql.removeEventListener) {
         mql.removeEventListener('change', apply)
       }
-      window.removeEventListener('unhandledrejection', onUnhandled)
-      window.removeEventListener('error', onErrorEvt)
     }
   }, [])
 
@@ -215,7 +198,6 @@ function App() {
 
   const handleConnect = () => {
     try {
-      resetWalletSession()
       showConnect({
         appDetails: {
           name: 'Stacks Counter App',
@@ -227,13 +209,12 @@ function App() {
             setUserData(userSession.loadUserData())
           } catch {}
           fetchCounter()
-          setConnectError(null)
         },
         userSession,
       })
     } catch (e) {
       try { userSession.signUserOut() } catch {}
-      setConnectError('Wallet session error. Please reset session and try connecting again.')
+      alert('Wallet session error. Please try connecting again after disabling conflicting extensions.')
     }
   }
 
@@ -242,22 +223,7 @@ function App() {
     setUserData(null)
   }
 
-  const resetWalletSession = () => {
-    try { userSession.signUserOut() } catch {}
-    try {
-      if (typeof window !== 'undefined' && window.localStorage) {
-        const keys = []
-        for (let i = 0; i < localStorage.length; i++) {
-          const k = localStorage.key(i)
-          if (k && (/blockstack/i.test(k) || /stacks/i.test(k) || /stx/i.test(k))) {
-            keys.push(k)
-          }
-        }
-        keys.forEach(k => localStorage.removeItem(k))
-      }
-    } catch {}
-    setConnectError(null)
-  }
+  
 
   return (
     <div className="app">
@@ -282,12 +248,6 @@ function App() {
         </header>
 
         <main>
-          {connectError && (
-            <div className="error" style={{ marginBottom: '20px' }}>
-              {connectError}
-              <button onClick={resetWalletSession} className="btn-retry">Reset Session</button>
-            </div>
-          )}
           {error && (
             <div className="error">
               {error}
