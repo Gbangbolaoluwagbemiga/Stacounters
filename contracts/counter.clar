@@ -27,6 +27,14 @@
   )
 )
 
+;; Decrement the counter by a custom amount
+(define-public (decrement-by (amount int))
+  (begin
+    (var-set counter (- (var-get counter) amount))
+    (ok (var-get counter))
+  )
+)
+
 ;; Get the current counter value
 (define-read-only (get-counter)
   (ok (var-get counter))
@@ -39,4 +47,3 @@
     (ok (var-get counter))
   )
 )
-
