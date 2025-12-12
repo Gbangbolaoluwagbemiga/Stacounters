@@ -41,6 +41,33 @@ Clarinet.test({
 });
 
 Clarinet.test({
+  name: "Counter supports decrement-by with custom amount",
+  async fn(chain: Chain, accounts: Map<string, Account>) {
+    const deployer = accounts.get('deployer')!;
+
+    // Start from known value
+    chain.mineBlock([
+      Tx.contractCall('counter', 'reset', [], deployer.address),
+      Tx.contractCall('counter', 'increment-by', [types.int(10)], deployer.address)
+    ]);
+
+    // Decrement by 3
+    let block = chain.mineBlock([
+      Tx.contractCall('counter', 'decrement-by', [types.int(3)], deployer.address)
+    ]);
+
+    block.receipts[0].result.expectOk().expectInt(7);
+
+    // Decrement by 7 to reach 0
+    block = chain.mineBlock([
+      Tx.contractCall('counter', 'decrement-by', [types.int(7)], deployer.address)
+    ]);
+
+    block.receipts[0].result.expectOk().expectInt(0);
+  },
+});
+
+Clarinet.test({
   name: "Counter can be read",
   async fn(chain: Chain, accounts: Map<string, Account>) {
     const deployer = accounts.get('deployer')!;
@@ -87,6 +114,5 @@ Clarinet.test({
     block.receipts[0].result.expectOk().expectInt(0);
   },
 });
-
 
 
