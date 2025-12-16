@@ -166,7 +166,7 @@ export default function Counter({ contractAddress, contractName, network, userSe
 
       <div className="custom-card">
         <div className="pane inc">
-          <h3>Increment by Amount</h3>
+          <h3>Increment</h3>
           <div className="pane-input-group">
             <input
               type="number"
@@ -187,7 +187,7 @@ export default function Counter({ contractAddress, contractName, network, userSe
           </div>
         </div>
         <div className="pane dec">
-          <h3>Decrement by Amount</h3>
+          <h3>Decrement</h3>
           <div className="pane-input-group">
             <input
               type="number"
