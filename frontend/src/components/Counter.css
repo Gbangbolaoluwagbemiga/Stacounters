@@ -205,6 +205,9 @@
   align-items: stretch;
   margin: 20px 0 30px 0;
   padding: 24px;
+  max-width: 760px;
+  margin-left: auto;
+  margin-right: auto;
   border-radius: 24px;
   background: radial-gradient(1000px circle at 10% 0%, rgba(102, 126, 234, 0.12) 0%, transparent 40%),
               radial-gradient(1000px circle at 90% 0%, rgba(246, 114, 128, 0.12) 0%, transparent 40%),
@@ -215,7 +218,8 @@
 }
 
 .pane {
-  flex: 1;
+  flex: 1 1 320px;
+  min-width: 320px;
   border-radius: 18px;
   padding: 20px;
   position: relative;
@@ -240,19 +244,22 @@
 
 .pane h3 {
   margin: 0 0 12px 0;
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 800;
   letter-spacing: 0.3px;
+  word-break: break-word;
 }
 
 .pane-input-group {
   display: flex;
   gap: 12px;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .pane-input {
   flex: 1;
+  min-width: 180px;
   padding: 14px 16px;
   border: 2px solid #ddd;
   border-radius: 12px;
@@ -297,6 +304,9 @@
   .custom-card {
     flex-direction: column;
     padding: 18px;
+  }
+  .pane {
+    min-width: 0;
   }
 }
 
@@ -372,4 +382,7 @@
 
 .dark .loading {
   color: #cbd5e1;
+}
+.pane .btn-action {
+  min-width: auto;
 }
