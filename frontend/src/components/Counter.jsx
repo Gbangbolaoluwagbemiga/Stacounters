@@ -164,47 +164,48 @@ export default function Counter({ contractAddress, contractName, network, userSe
         )}
       </div>
 
-      <div className="increment-custom">
-        <h3>Increment by Custom Amount</h3>
-        <div className="increment-input-group">
-          <input
-            type="number"
-            min="1"
-            value={incrementAmount}
-            onChange={(e) => setIncrementAmount(e.target.value)}
-            placeholder="Enter amount"
-            disabled={processing || waitingForConfirmation || !isSignedInSafe()}
-            className="increment-input"
-          />
-          <button
-            onClick={() => handleContractCall('increment-by', incrementAmount)}
-            disabled={processing || waitingForConfirmation || !isSignedInSafe()}
-            className="btn-action btn-increment-custom"
-          >
-            ➕ Add {incrementAmount || '0'}
-          </button>
+      <div className="custom-card">
+        <div className="pane inc">
+          <h3>Increment by Amount</h3>
+          <div className="pane-input-group">
+            <input
+              type="number"
+              min="1"
+              value={incrementAmount}
+              onChange={(e) => setIncrementAmount(e.target.value)}
+              placeholder="Enter amount"
+              disabled={processing || waitingForConfirmation || !isSignedInSafe()}
+              className="pane-input"
+            />
+            <button
+              onClick={() => handleContractCall('increment-by', incrementAmount)}
+              disabled={processing || waitingForConfirmation || !isSignedInSafe()}
+              className="btn-action btn-pane-inc"
+            >
+              ➕ Add {incrementAmount || '0'}
+            </button>
+          </div>
         </div>
-      </div>
-
-      <div className="increment-custom" style={{ marginTop: '20px' }}>
-        <h3>Decrement by Custom Amount</h3>
-        <div className="increment-input-group">
-          <input
-            type="number"
-            min="1"
-            value={decrementAmount}
-            onChange={(e) => setDecrementAmount(e.target.value)}
-            placeholder="Enter amount"
-            disabled={processing || waitingForConfirmation || !isSignedInSafe()}
-            className="increment-input"
-          />
-          <button
-            onClick={() => handleContractCall('decrement-by', decrementAmount)}
-            disabled={processing || waitingForConfirmation || !isSignedInSafe()}
-            className="btn-action btn-decrement-custom"
-          >
-            ➖ Subtract {decrementAmount || '0'}
-          </button>
+        <div className="pane dec">
+          <h3>Decrement by Amount</h3>
+          <div className="pane-input-group">
+            <input
+              type="number"
+              min="1"
+              value={decrementAmount}
+              onChange={(e) => setDecrementAmount(e.target.value)}
+              placeholder="Enter amount"
+              disabled={processing || waitingForConfirmation || !isSignedInSafe()}
+              className="pane-input"
+            />
+            <button
+              onClick={() => handleContractCall('decrement-by', decrementAmount)}
+              disabled={processing || waitingForConfirmation || !isSignedInSafe()}
+              className="btn-action btn-pane-dec"
+            >
+              ➖ Subtract {decrementAmount || '0'}
+            </button>
+          </div>
         </div>
       </div>
 
